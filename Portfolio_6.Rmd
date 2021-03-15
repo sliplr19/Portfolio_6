@@ -11,7 +11,8 @@ This project I have to get done quickly because it's time sensitive: it's a Marc
 library(tidyverse)
 power_rankings <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\power_rankings.txt", header = TRUE, stringsAsFactors = FALSE)
 rpi <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\rpi.txt", header = TRUE, stringsAsFactors = FALSE)
-wab <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\wab.txt", header = TRUE, stringsAsFactors = FALSE)
+basic <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\basic_stats.txt", header = TRUE, stringsAsFactors = FALSE)
+adv <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\adv_stats.txt", header = TRUE, stringsAsFactors = FALSE)
 ```
 
 Okay, now I'm going to make a dataframe that will serve as my bracket. I tried finding something nice online that would 
@@ -39,5 +40,42 @@ team <- c("Gonzaga", "Appalachian St.", "Oklahoma",
            "Cleveland St.")
 bracket <- as.data.frame(cbind(team))
 ```
+
+I want to have a dataframe of all the data and a dataframe to use as the bracket. Let's create a new dataframe for all of the data. To do that, I'll need to do some editing of the adv and basic dataframes. The problem is there will be columns with the same name, so we need to rename some columns
+
+```{r ad/ba_redo}
+adv$Overall.1[adv$Overall.1 == "W"] <- "W-ovrl"
+adv$Overall.2[adv$Overall.2 == "L"] <- "L-ovrl"
+adv$Conf.[adv$Conf. == "W"] <- "W-conf"
+adv$Conf..1[adv$Conf..1 == "L"] <- "L-conf"
+adv$Home[adv$Home == "W"] <- "W-home"
+adv$Home.1[adv$Home.1 == "L"] <- "L-home"
+adv$Away[adv$Away == "W"] <- "W-away"
+adv$Away.1[adv$Away.1 == "L"] <- "L-away"
+basic$Overall.1[basic$Overall.1 == "W"] <- "W-ovrl"
+basic$Overall.2[basic$Overall.2 == "L"] <- "L-ovrl"
+basic$Conf.[basic$Conf. == "W"] <- "W-conf"
+basic$Conf..1[basic$Conf..1 == "L"] <- "L-conf"
+basic$Home[basic$Home == "W"] <- "W-home"
+basic$Home.1[basic$Home.1 == "L"] <- "L-home"
+basic$Away[basic$Away == "W"] <- "W-away"
+basic$Away.1[basic$Away.1 == "L"] <- "L-away"
+colnames(adv) <- as.character(adv[1,])
+colnames(basic) <- as.character(basic[1,])
+names(adv)[names(adv) == "School"] <- "team"
+names(basic)[names(basic) == "School"] <- "team"
+adv <- adv[-1, ] 
+basic <- basic[-1, ] 
+```
+
+Okay, now I'm going to check for repeat columns across the dataframes before combining them. There's also some empty columns in the adv and basic data frames that I'll delete. I'm having trouble deleting them by name, so I'm just going to go with number.
+
+
+```{r delete_2}
+basic <- basic[, -c(1, 3:21)]
+adv <- adv[, -c(9, 12, 15, 18, 21)] 
+```
+
+Okay, one last thing before we smoosh the dataframes together. We need to make sure the teams match.
 
 
