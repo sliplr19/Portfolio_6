@@ -14,22 +14,30 @@ rpi <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\rp
 wab <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\wab.txt", header = TRUE, stringsAsFactors = FALSE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+Okay, now I'm going to make a dataframe that will serve as my bracket. I tried finding something nice online that would 
+```{r bracket_creation}
+bracket <- data.frame()
+team <- c("Gonzaga", "Appalachian St.", "Oklahoma",
+           "Missouri", "Creighton", "UCSB",  
+           "Virginia",
+           "Ohio", "USC", "Wichita St.", "Kansas", 
+           "Eastern Wash.", "Oregon", "VCU", "Iowa",
+           "Grand Canyon", "Michigan", "Texas Southern", "LSU", "St. Bonaventure", "Colorado",
+           "Georgetown", "Florida St.", 
+           "UNC Greensboro", "BYU", "UCLA", "Texas",
+           "Abilene Christian", "UConn", "Maryland",
+           "Alabama", "Iona", "Baylor", "Hartford",
+           "North Carolina", "Wisconsin", "Villanova",
+           "Winthrop", "Purdue", "North Texas", 
+           "Texas Tech", "Utah St.", "Arkansas",
+           "Colgate", "Florida", "Virginia Tech",
+           "Ohio St.", "Oral Roberts", "Illinois",
+           "Drexel", "Loyola Chicago", "Georgia Tech", "Tennessee", "Oregon St.", "Oklahoma St.",
+           "Liberty", "San Diego St.", "Syracuse",
+           "West Virginia", "Morehead St.",
+           "Clemson", "Rutgers", "Houston",
+           "Cleveland St.")
+bracket <- as.data.frame(cbind(team))
 ```
 
-## Including Plots
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
