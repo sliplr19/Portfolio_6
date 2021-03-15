@@ -1,0 +1,35 @@
+---
+title: "Portfolio_6"
+author: "Lindley Slipetz"
+date: "3/15/2021"
+output: html_document
+---
+
+This project I have to get done quickly because it's time sensitive: it's a March Madness predictor code! The first game is Thursday, so I'll need to get my predictions together before then. We have a lot of datafiles to go through and then I'll try to cobble them together in a way that makes sense to me (and maybe no one else). 
+
+```{r packages_data, warning = FALSE, message = FALSE}
+library(tidyverse)
+power_rankings <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\power_rankings.txt", header = TRUE, stringsAsFactors = FALSE)
+rpi <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\rpi.txt", header = TRUE, stringsAsFactors = FALSE)
+wab <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\wab.txt", header = TRUE, stringsAsFactors = FALSE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
