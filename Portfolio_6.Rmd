@@ -96,13 +96,11 @@ for(i in 1:nrow(adv)){
 }
 
 ```
-Okay, now let's make a monster dataframe. 
+Okay, now let's make a monster dataframe. Okay, after looking at the stats (yes I'm going backwards), I've decided I don't need the basic and adv datasets.
 
 ```{r all_data}
 NCAA_data <- left_join(bracket, power_rankings, by = "team",  suffix = c(".x", ".y"))
 NCAA_data <- left_join(NCAA_data, rpi, by = "team",  suffix = c(".x", ".y"))
-NCAA_data <- left_join(NCAA_data, basic, by = "team",  suffix = c(".x", ".y"))
-NCAA_data <- left_join(NCAA_data, adv, by = "team",  suffix = c(".x", ".y"))
 ```
 
 Okay, now we have our monster dataframe. Before we start doing stuff with it, let's make a quick edit to our bracket dataframe. I want it to represent the different rounds of the tournament, so...
@@ -114,3 +112,56 @@ bracket[ ,brack_names] <- NA
 
 ```
 Now is the time I step away from Rstudio and start deciding which stats I would like to use to choose my times. From the little I already know about NCAA basketball is that the best offense or (exclusive) the best defense is usually eliminated early. You need a good balance of offense and defense to make it far in the tournament. So two of the measures that I'll be using are a measure of offense and a measure of defense.
+
+First, I'm going to go through all of the columns and see what kind of stat it is.
+
+# Stat list
+
+* __yusag coeefficient__:  number of points they're expected to win by over average team 
+
+* ___rpi__: measure of wins, losses, strength of schedule __will use rpi_rank for this__
+
+* __offense coefficient__: the creator of this dataset is not clear on exactly what went into creating this coefficient, but the higher the number, the better the offense 
+
+* __defense coefficient__: the creator of this dataset is not clear on exactly what went into creating this coefficient, but the higher the number, the better the defense 
+
+The yusag coefficient seems to be a combination of defense and offense coefficients so I think it would be redundant to use it. I want to pit the offense and the defense stats together, but I think it's important to consider strength of schedule with that. I'm going to make two new columns: off_sos_rank and def_sos_rank, which will be the rankings of offense and defense with strength of schedule considered.
+
+```{r off_sos_rank}
+NCAA_data <- NCAA_data %>%
+  mutate(
+    off_sos_rank =  rank((off_coeff*rpi))
+  )
+```
+
+```{r def_sos_rank}
+NCAA_data <- NCAA_data %>%
+  mutate(
+    def_sos_rank =  rank((def_coeff*rpi))
+  )
+```
+
+Okay, cool. Now we have all the data we need. Now I'm going to write a function to compare teams.
+
+```{r compare_func}
+compare_teams <- function(dataframe_data, dataframe_bracket, round, team1, team2, offense, defense) {
+  offense_1 <- dataframe['team1', 'offense']
+  offense_2 <- dataframe['team2', 'offense']
+  defense_1 <- dataframe['team1', 'defense']
+  defense_2 <- dataframe['team2', 'defense']
+  compare_1 <- offense_1 - defense_2
+  compare_2 <- defense_1 - offense_2
+  if(compare_1 + compare_2 > 0){
+    column <- paste0("Round_", round, collapse)
+    dataframe_bracket <- dataframe_bracket %>%  
+      add_row(column = team1)
+      }
+   else{
+     column <- paste0("Round_", round, collapse)
+    dataframe_bracket <- dataframe_bracket %>%  
+      add_row(column = team2)
+      }
+}
+```
+
+Cool, I have my function. Now, let's put it to use.
