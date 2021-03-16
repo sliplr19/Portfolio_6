@@ -76,6 +76,44 @@ basic <- basic[, -c(1, 3:21)]
 adv <- adv[, -c(9, 12, 15, 18, 21)] 
 ```
 
-Okay, one last thing before we smoosh the dataframes together. We need to make sure the teams match.
+Okay, one last thing before we smoosh the dataframes together. We need to make sure the teams match. I've been trying to do this the fancy with agrep, but I've been struggling. Since I'm in a time crunch, I'm just going to do this by brute force. 
+```{r name_match}
+for(i in 1:nrow(basic)){
+    basic[i,1] <- str_replace(basic[i,1], "NCAA", "")
+    basic[i,1] <- str_replace(basic[i,1], "State", "St.")
+    basic[i,1] <- str_replace(basic[i,1], "UC-Santa Barbara", "UCSB")
+    basic[i,1] <- str_replace(basic[i,1], "Eastern Washington", "Eastern Wash.")
+    basic[i,1] <- str_replace(basic[i,1], "North Carolina-Greensboro", "UNC Greensboro")
+    basic[i,1] <- str_replace(basic[i,1], "Southern California", "USC")
+}
+for(i in 1:nrow(adv)){
+    adv[i,1] <- str_replace(adv[i,1], "NCAA", "")
+    adv[i,1] <- str_replace(adv[i,1], "State", "St.")
+    adv[i,1] <- str_replace(adv[i,1], "UC-Santa Barbara", "UCSB")
+    adv[i,1] <- str_replace(adv[i,1], "Eastern Washington", "Eastern Wash.")
+    adv[i,1] <- str_replace(adv[i,1], "North Carolina-Greensboro", "UNC Greensboro")
+    adv[i,1] <- str_replace(adv[i,1], "Southern California", "USC")
+}
+
+```
+
+       for(i in 1:nrow(bracket)) {
+  for(j in 1:nrow(basic)){
+    x <- agrep(bracket[i,1], basic[j,1], max.distance = 0.1,  
+                costs = NULL, value = TRUE,
+                ignore.case = FALSE, fixed = TRUE, 
+                useBytes = FALSE)
+   
+  }
+   data_NCAA <- data_NCAA %>%
+      add_row(team = x)
+}
+ 
+x <- agrep(bracket[i,1], basic[j,1], max.distance = 0.1,          ignore.case = FALSE, value = TRUE)
 
 
+
+ x <- agrep(bracket[i,1], basic$team[j,], max.distance = 0.1, costs = NULL,
+      ignore.case = FALSE, value = FALSE, fixed = TRUE,
+      useBytes = FALSE) 
+       x <- bracket[as.logical(adist(basic[j,1],bracket) <= 2)]
