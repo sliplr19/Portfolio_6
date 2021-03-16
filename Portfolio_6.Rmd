@@ -107,7 +107,7 @@ Okay, now we have our monster dataframe. Before we start doing stuff with it, le
 
 ```{r bracket_rev}
 brack_names <- c("Round_2", "Round_3",
-                       "Round_4", "Round_5", "Round_6")
+                       "Round_4", "Round_5", "Round_6", "Round_7")
 bracket[ ,brack_names] <- NA
 
 ```
@@ -130,38 +130,305 @@ The yusag coefficient seems to be a combination of defense and offense coefficie
 ```{r off_sos_rank}
 NCAA_data <- NCAA_data %>%
   mutate(
-    off_sos_rank =  rank((off_coeff*rpi))
+    off_sos_rank =  as.numeric(rank((off_coeff*rpi)))
   )
 ```
 
 ```{r def_sos_rank}
 NCAA_data <- NCAA_data %>%
   mutate(
-    def_sos_rank =  rank((def_coeff*rpi))
+    def_sos_rank =  as.numeric(rank((def_coeff*rpi)))
   )
 ```
 
-Okay, cool. Now we have all the data we need. Now I'm going to write a function to compare teams.
+Okay, cool. Now we have all the data we need. Now I'm going to write a function to compare teams. Okay, nevermind. My function is not working, so I'm just going to throw it all in a while loop.
 
 ```{r compare_func}
 compare_teams <- function(dataframe_data, dataframe_bracket, round, team1, team2, offense, defense) {
-  offense_1 <- dataframe['team1', 'offense']
-  offense_2 <- dataframe['team2', 'offense']
-  defense_1 <- dataframe['team1', 'defense']
-  defense_2 <- dataframe['team2', 'defense']
-  compare_1 <- offense_1 - defense_2
-  compare_2 <- defense_1 - offense_2
-  if(compare_1 + compare_2 > 0){
-    column <- paste0("Round_", round, collapse)
-    dataframe_bracket <- dataframe_bracket %>%  
-      add_row(column = team1)
-      }
-   else{
-     column <- paste0("Round_", round, collapse)
-    dataframe_bracket <- dataframe_bracket %>%  
-      add_row(column = team2)
-      }
+
 }
 ```
 
 Cool, I have my function. Now, let's put it to use.
+
+```{r round_2}
+count <- 1
+round <- 2
+while(count < 65){
+  second <- count + 1
+  team1 <- bracket$team[count]
+  team2 <- bracket$team[second]
+  offense_1 <- NCAA_data$off_sos_rank[count]
+  offense_2 <- NCAA_data$off_sos_rank[second]
+  defense_1 <- NCAA_data$def_sos_rank[count]
+  defense_2 <- NCAA_data$def_sos_rank[second]
+  compare_1 <- offense_1 - defense_2
+  compare_2 <- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_2 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_2 = team2)
+      }
+  count <- count + 2
+}
+```
+
+Okay, that got me undesirable results. Let's try again with different stats.
+
+```{r round_2b}
+count <- 1
+round <- 2
+while(count < 65){
+  second <- count + 1
+  team1 <- bracket$team[count]
+  team2 <- bracket$team[second]
+  offense_1 <- NCAA_data$off_rank[count]
+  offense_2 <- NCAA_data$off_rank[second]
+  defense_1 <- NCAA_data$def_rank[count]
+  defense_2 <- NCAA_data$def_rank[second]
+  compare_1 <- offense_1 - defense_2
+  compare_2 <- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_2 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_2 = team2)
+      }
+  count <- count + 2
+}
+```
+
+That goes in the opposite direction (the problem with the first one was that only the higher-seeded team won; the problem with the second one is that now the lower-seeded teams are winning). Let's try a new statistic. Like I previously mentioned, the best teams are a balance of good offense and defense. Let's take the average of offense and defense rank to find the balance.
+
+```{r all_rank}
+NCAA_data <- NCAA_data %>%
+  mutate(
+    all_rank =  as.numeric(rank((off_rank+def_rank)/2))
+  )
+```
+
+```{r round_2c}
+count <- 1
+while(count < 65){
+  second <- count + 1
+  team1 <- bracket$team[count]
+  team2 <- bracket$team[second]
+  all_1 <- NCAA_data$all_rank[count]
+  all_2 <- NCAA_data$all_rank[second]
+  result = all_1 - all_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_2 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_2 = team2)
+      }
+  count <- count + 2
+}
+```
+
+Okay, I think 2b and 2c give the same results (and maybe that's obvious...I'm moving fast through this, so I'm not really thinking of the implications). Let's run it for the other rounds. Since I'm in two pools, I think I'll do two different brackets: one for 1a and one for 1c.
+
+```{r round_3c}
+count <- 1
+while(count < 33){
+  second <- count + 1
+  team1 <- bracket$Round_2[64 + count]
+  team2 <- bracket$Round_2[64 + second]
+  all_1 <- NCAA_data$all_rank[count]
+  all_2 <- NCAA_data$all_rank[second]
+  result = all_1 - all_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_3 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_3 = team2)
+      }
+  count <- count + 2
+}
+```
+
+```{r round_4c}
+count <- 1
+while(count < 17){
+  second <- count + 1
+  team1 <- bracket$Round_3[96 + count]
+  team2 <- bracket$Round_3[96 + second]
+  all_1 <- NCAA_data$all_rank[count]
+  all_2 <- NCAA_data$all_rank[second]
+  result = all_1 - all_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_4 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_4 = team2)
+      }
+  count <- count + 2
+}
+```
+
+```{r round_5c}
+count <- 1
+while(count < 9){
+  second <- count + 1
+  team1 <- bracket$Round_4[112 + count]
+  team2 <- bracket$Round_4[112 + second]
+  all_1 <- NCAA_data$all_rank[count]
+  all_2 <- NCAA_data$all_rank[second]
+  result = all_1 - all_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_5 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_5 = team2)
+      }
+  count <- count + 2
+}
+```
+
+Okay, this is not working. If you know anything about basketball, and you see the final four I have, you'll see why this is NOT a good predictor. I'm going back to 1a.
+
+```{r round_3a}
+count <- 1
+round <- 2
+while(count < 33){
+  second <- count + 1
+  team1 <- bracket$Round_2[64 + count]
+  team2 <- bracket$Round_2[64 + second]
+  offense_1 <- NCAA_data$off_sos_rank[count]
+  offense_2 <- NCAA_data$off_sos_rank[second]
+  defense_1 <- NCAA_data$def_sos_rank[count]
+  defense_2 <- NCAA_data$def_sos_rank[second]
+  compare_1 <- offense_1 - defense_2
+  compare_2 <- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_3 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_3 = team2)
+      }
+  count <- count + 2
+}
+```
+
+```{r round_4a}
+count <- 1
+round <- 2
+while(count < 17){
+  second <- count + 1
+  team1 <- bracket$Round_3[96 + count]
+  team2 <- bracket$Round_3[96 + second]
+  offense_1 <- NCAA_data$off_sos_rank[count]
+  offense_2 <- NCAA_data$off_sos_rank[second]
+  defense_1 <- NCAA_data$def_sos_rank[count]
+  defense_2 <- NCAA_data$def_sos_rank[second]
+  compare_1 <- offense_1 - defense_2
+  compare_2 <- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_4 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_4 = team2)
+      }
+  count <- count + 2
+}
+```
+
+
+```{r round_5a}
+count <- 1
+round <- 2
+while(count < 9){
+  second <- count + 1
+  team1 <- bracket$Round_4[112 + count]
+  team2 <- bracket$Round_4[112 + second]
+  offense_1 <- NCAA_data$off_sos_rank[count]
+  offense_2 <- NCAA_data$off_sos_rank[second]
+  defense_1 <- NCAA_data$def_sos_rank[count]
+  defense_2 <- NCAA_data$def_sos_rank[second]
+  compare_1 <- offense_1 - defense_2
+  compare_2 <- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_5 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_5 = team2)
+      }
+  count <- count + 2
+}
+```
+
+```{r round_6a}
+count <- 1
+round <- 2
+while(count < 5){
+  second <- count + 1
+  team1 <- bracket$Round_5[120 + count]
+  team2 <- bracket$Round_5[120 + second]
+  offense_1 <- NCAA_data$off_sos_rank[count]
+  offense_2 <- NCAA_data$off_sos_rank[second]
+  defense_1 <- NCAA_data$def_sos_rank[count]
+  defense_2 <- NCAA_data$def_sos_rank[second]
+  compare_1 <- offense_1 - defense_2
+  compare_2 <- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_6 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_6 = team2)
+      }
+  count <- count + 2
+}
+```
+
+```{r round_7a}
+count <- 1
+round <- 2
+while(count < 3){
+  second <- count + 1
+  team1 <- bracket$Round_6[124 + count]
+  team2 <- bracket$Round_6[124 + second]
+  offense_1 <- NCAA_data$off_sos_rank[count]
+  offense_2 <- NCAA_data$off_sos_rank[second]
+  defense_1 <- NCAA_data$def_sos_rank[count]
+  defense_2 <- NCAA_data$def_sos_rank[second]
+  compare_1 <- offense_1 - defense_2
+  compare_2 <- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result > 0){
+    bracket <- bracket %>%  
+      add_row(Round_7 = team1)
+      }
+   else{
+     bracket <- bracket %>%  
+      add_row(Round_7 = team2)
+      }
+  count <- count + 2
+}
+```
