@@ -377,7 +377,7 @@ power_rankings &lt;- read.csv(&quot;C:\\Users\\Owner\\Documents\\Portfolio_6\\Po
 rpi &lt;- read.csv(&quot;C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\rpi.txt&quot;, header = TRUE, stringsAsFactors = FALSE)
 basic &lt;- read.csv(&quot;C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\basic_stats.txt&quot;, header = TRUE, stringsAsFactors = FALSE)
 adv &lt;- read.csv(&quot;C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\adv_stats.txt&quot;, header = TRUE, stringsAsFactors = FALSE)</code></pre>
-<p>Okay, now I’m going to make a dataframe that will serve as my bracket. I tried finding something nice online that would</p>
+<p>Okay, now I’m going to make a dataframe that will serve as my bracket. I tried finding something nice online that would serve my purpose, but making it on my own is fine, too.</p>
 <pre class="r"><code>bracket &lt;- data.frame(stringsAsFactors = FALSE)
 team &lt;- c(&quot;Gonzaga&quot;, &quot;Appalachian St.&quot;, &quot;Oklahoma&quot;,
            &quot;Missouri&quot;, &quot;Creighton&quot;, &quot;UC Santa Barbara&quot;,  
@@ -441,22 +441,282 @@ for(i in 1:nrow(adv)){
     adv[i,1] &lt;- str_replace(adv[i,1], &quot;Eastern Washington&quot;, &quot;Eastern Wash.&quot;)
     adv[i,1] &lt;- str_replace(adv[i,1], &quot;North Carolina-Greensboro&quot;, &quot;UNC Greensboro&quot;)
 }</code></pre>
-<p>Okay, now let’s make a monster dataframe.</p>
+<p>Okay, now let’s make a monster dataframe. Okay, after looking at the stats (yes I’m going backwards), I’ve decided I don’t need the basic and adv datasets.</p>
 <pre class="r"><code>NCAA_data &lt;- left_join(bracket, power_rankings, by = &quot;team&quot;,  suffix = c(&quot;.x&quot;, &quot;.y&quot;))
-NCAA_data &lt;- left_join(NCAA_data, rpi, by = &quot;team&quot;,  suffix = c(&quot;.x&quot;, &quot;.y&quot;))
-NCAA_data &lt;- left_join(NCAA_data, basic, by = &quot;team&quot;,  suffix = c(&quot;.x&quot;, &quot;.y&quot;))
-NCAA_data &lt;- left_join(NCAA_data, adv, by = &quot;team&quot;,  suffix = c(&quot;.x&quot;, &quot;.y&quot;))</code></pre>
-<p>Okay, now we have our monster dataframe. Before we start doing stuff with it, let’s make a quick edit to our bracket dataframe. I want it to represent the different rounds of the tournament, so…</p>
+NCAA_data &lt;- left_join(NCAA_data, rpi, by = &quot;team&quot;,  suffix = c(&quot;.x&quot;, &quot;.y&quot;))</code></pre>
+<p>Now we have our monster dataframe. Before we start doing stuff with it, let’s make a quick edit to our bracket dataframe. I want it to represent the different rounds of the tournament, so…</p>
 <pre class="r"><code>brack_names &lt;- c(&quot;Round_2&quot;, &quot;Round_3&quot;,
-                       &quot;Round_4&quot;, &quot;Round_5&quot;, &quot;Round_6&quot;)
+                       &quot;Round_4&quot;, &quot;Round_5&quot;, &quot;Round_6&quot;, &quot;Round_7&quot;)
 bracket[ ,brack_names] &lt;- NA</code></pre>
 <p>Now is the time I step away from Rstudio and start deciding which stats I would like to use to choose my times. From the little I already know about NCAA basketball is that the best offense or (exclusive) the best defense is usually eliminated early. You need a good balance of offense and defense to make it far in the tournament. So two of the measures that I’ll be using are a measure of offense and a measure of defense.</p>
 <p>First, I’m going to go through all of the columns and see what kind of stat it is.</p>
 <div id="stat-list" class="section level1">
 <h1>Stat list</h1>
 <ul>
-<li><strong>yusag coeefficient</strong></li>
+<li><p><strong>yusag coeefficient</strong>: number of points they’re expected to win by over average team</p></li>
+<li><p>_<strong>rpi</strong>: measure of wins, losses, strength of schedule <strong>will use rpi_rank for this</strong></p></li>
+<li><p><strong>offense coefficient</strong>: the creator of this dataset is not clear on exactly what went into creating this coefficient, but the higher the number, the better the offense</p></li>
+<li><p><strong>defense coefficient</strong>: the creator of this dataset is not clear on exactly what went into creating this coefficient, but the higher the number, the better the defense</p></li>
 </ul>
+<p>The yusag coefficient seems to be a combination of defense and offense coefficients so I think it would be redundant to use it. I want to pit the offense and the defense stats together, but I think it’s important to consider strength of schedule with that. I’m going to make two new columns: off_sos_rank and def_sos_rank, which will be the rankings of offense and defense with strength of schedule considered.</p>
+<pre class="r"><code>NCAA_data &lt;- NCAA_data %&gt;%
+  mutate(
+    off_sos_rank =  as.numeric(rank((off_coeff*rpi)))
+  )</code></pre>
+<pre class="r"><code>NCAA_data &lt;- NCAA_data %&gt;%
+  mutate(
+    def_sos_rank =  as.numeric(rank((def_coeff*rpi)))
+  )</code></pre>
+<p>Okay, cool. Now we have all the data we need. Now I’m going to write a function to compare teams. Okay, nevermind. My function is not working, so I’m just going to throw it all in a while loop.</p>
+<pre class="r"><code>compare_teams &lt;- function(dataframe_data, dataframe_bracket, round, team1, team2, offense, defense) {
+
+}</code></pre>
+<p>Here’s the alternative to the function:</p>
+<pre class="r"><code>count &lt;- 1
+round &lt;- 2
+while(count &lt; 65){
+  second &lt;- count + 1
+  team1 &lt;- bracket$team[count]
+  team2 &lt;- bracket$team[second]
+  offense_1 &lt;- NCAA_data$off_sos_rank[count]
+  offense_2 &lt;- NCAA_data$off_sos_rank[second]
+  defense_1 &lt;- NCAA_data$def_sos_rank[count]
+  defense_2 &lt;- NCAA_data$def_sos_rank[second]
+  compare_1 &lt;- offense_1 - defense_2
+  compare_2 &lt;- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_2 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_2 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<p>Okay, that got me undesirable results. Let’s try again with different stats.</p>
+<pre class="r"><code>count &lt;- 1
+round &lt;- 2
+while(count &lt; 65){
+  second &lt;- count + 1
+  team1 &lt;- bracket$team[count]
+  team2 &lt;- bracket$team[second]
+  offense_1 &lt;- NCAA_data$off_rank[count]
+  offense_2 &lt;- NCAA_data$off_rank[second]
+  defense_1 &lt;- NCAA_data$def_rank[count]
+  defense_2 &lt;- NCAA_data$def_rank[second]
+  compare_1 &lt;- offense_1 - defense_2
+  compare_2 &lt;- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_2 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_2 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<p>That goes in the opposite direction (the problem with the first one was that only the higher-seeded team won; the problem with the second one is that now the lower-seeded teams are winning). Let’s try a new statistic. Like I previously mentioned, the best teams are a balance of good offense and defense. Let’s take the average of offense and defense rank to find the balance.</p>
+<pre class="r"><code>NCAA_data &lt;- NCAA_data %&gt;%
+  mutate(
+    all_rank =  as.numeric(rank((off_rank+def_rank)/2))
+  )</code></pre>
+<pre class="r"><code>count &lt;- 1
+while(count &lt; 65){
+  second &lt;- count + 1
+  team1 &lt;- bracket$team[count]
+  team2 &lt;- bracket$team[second]
+  all_1 &lt;- NCAA_data$all_rank[count]
+  all_2 &lt;- NCAA_data$all_rank[second]
+  result = all_1 - all_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_2 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_2 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<p>Okay, I think 2b and 2c give the same results (and maybe that’s obvious…I’m moving fast through this, so I’m not really thinking of the implications). Let’s run it for the other rounds. Since I’m in two pools, I think I’ll do two different brackets: one for 1a and one for 1c.</p>
+<pre class="r"><code>count &lt;- 1
+while(count &lt; 33){
+  second &lt;- count + 1
+  team1 &lt;- bracket$Round_2[64 + count]
+  team2 &lt;- bracket$Round_2[64 + second]
+  all_1 &lt;- NCAA_data$all_rank[count]
+  all_2 &lt;- NCAA_data$all_rank[second]
+  result = all_1 - all_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_3 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_3 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<pre class="r"><code>count &lt;- 1
+while(count &lt; 17){
+  second &lt;- count + 1
+  team1 &lt;- bracket$Round_3[96 + count]
+  team2 &lt;- bracket$Round_3[96 + second]
+  all_1 &lt;- NCAA_data$all_rank[count]
+  all_2 &lt;- NCAA_data$all_rank[second]
+  result = all_1 - all_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_4 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_4 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<pre class="r"><code>count &lt;- 1
+while(count &lt; 9){
+  second &lt;- count + 1
+  team1 &lt;- bracket$Round_4[112 + count]
+  team2 &lt;- bracket$Round_4[112 + second]
+  all_1 &lt;- NCAA_data$all_rank[count]
+  all_2 &lt;- NCAA_data$all_rank[second]
+  result = all_1 - all_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_5 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_5 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<p>Okay, this is not working. If you know anything about basketball, and you see the final four I have, you’ll see why this is NOT a good predictor. I’m going back to 1a.</p>
+<pre class="r"><code>count &lt;- 1
+round &lt;- 2
+while(count &lt; 33){
+  second &lt;- count + 1
+  team1 &lt;- bracket$Round_2[64 + count]
+  team2 &lt;- bracket$Round_2[64 + second]
+  offense_1 &lt;- NCAA_data$off_sos_rank[count]
+  offense_2 &lt;- NCAA_data$off_sos_rank[second]
+  defense_1 &lt;- NCAA_data$def_sos_rank[count]
+  defense_2 &lt;- NCAA_data$def_sos_rank[second]
+  compare_1 &lt;- offense_1 - defense_2
+  compare_2 &lt;- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_3 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_3 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<pre class="r"><code>count &lt;- 1
+round &lt;- 2
+while(count &lt; 17){
+  second &lt;- count + 1
+  team1 &lt;- bracket$Round_3[96 + count]
+  team2 &lt;- bracket$Round_3[96 + second]
+  offense_1 &lt;- NCAA_data$off_sos_rank[count]
+  offense_2 &lt;- NCAA_data$off_sos_rank[second]
+  defense_1 &lt;- NCAA_data$def_sos_rank[count]
+  defense_2 &lt;- NCAA_data$def_sos_rank[second]
+  compare_1 &lt;- offense_1 - defense_2
+  compare_2 &lt;- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_4 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_4 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<pre class="r"><code>count &lt;- 1
+round &lt;- 2
+while(count &lt; 9){
+  second &lt;- count + 1
+  team1 &lt;- bracket$Round_4[112 + count]
+  team2 &lt;- bracket$Round_4[112 + second]
+  offense_1 &lt;- NCAA_data$off_sos_rank[count]
+  offense_2 &lt;- NCAA_data$off_sos_rank[second]
+  defense_1 &lt;- NCAA_data$def_sos_rank[count]
+  defense_2 &lt;- NCAA_data$def_sos_rank[second]
+  compare_1 &lt;- offense_1 - defense_2
+  compare_2 &lt;- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_5 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_5 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<pre class="r"><code>count &lt;- 1
+round &lt;- 2
+while(count &lt; 5){
+  second &lt;- count + 1
+  team1 &lt;- bracket$Round_5[120 + count]
+  team2 &lt;- bracket$Round_5[120 + second]
+  offense_1 &lt;- NCAA_data$off_sos_rank[count]
+  offense_2 &lt;- NCAA_data$off_sos_rank[second]
+  defense_1 &lt;- NCAA_data$def_sos_rank[count]
+  defense_2 &lt;- NCAA_data$def_sos_rank[second]
+  compare_1 &lt;- offense_1 - defense_2
+  compare_2 &lt;- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_6 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_6 = team2)
+      }
+  count &lt;- count + 2
+}</code></pre>
+<pre class="r"><code>count &lt;- 1
+round &lt;- 2
+while(count &lt; 3){
+  second &lt;- count + 1
+  team1 &lt;- bracket$Round_6[124 + count]
+  team2 &lt;- bracket$Round_6[124 + second]
+  offense_1 &lt;- NCAA_data$off_sos_rank[count]
+  offense_2 &lt;- NCAA_data$off_sos_rank[second]
+  defense_1 &lt;- NCAA_data$def_sos_rank[count]
+  defense_2 &lt;- NCAA_data$def_sos_rank[second]
+  compare_1 &lt;- offense_1 - defense_2
+  compare_2 &lt;- defense_1 - offense_2
+  result = compare_1 + compare_2
+  if(result &gt; 0){
+    bracket &lt;- bracket %&gt;%  
+      add_row(Round_7 = team1)
+      }
+   else{
+     bracket &lt;- bracket %&gt;%  
+      add_row(Round_7 = team2)
+      &quot;&quot;}
+  count &lt;- count + 2
+}</code></pre>
+<p>I don’t want to go into R everytime I want to look at my bracket, so I’m going to save it.</p>
+<pre class="r"><code>#write.csv(bracket, #&quot;C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\bra#cket.csv&quot;)</code></pre>
+<p>Okay, so that was my workshop on how not to do stats. The majorly taboo thing I did was doing analyses until I got results I liked. If I had more time to do this, I would have done more pre-analysis thinking.</p>
+<p>So, the result: I used 1a and found that Gonzaga will win the tournament. I decided not to use 1c for anything. Instead, for my other pool, I did what I usually do and chose based on personal vendettas. Now, I want to see if my program performs better than the ultra biased personal selections. I’m guessing it will, but I’m going to test it. Stay tuned for a follow-up t-test comparing the scores from the program and me.</p>
 </div>
 
 

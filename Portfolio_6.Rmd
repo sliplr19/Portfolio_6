@@ -17,7 +17,8 @@ basic <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\
 adv <- read.csv("C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\adv_stats.txt", header = TRUE, stringsAsFactors = FALSE)
 ```
 
-Okay, now I'm going to make a dataframe that will serve as my bracket. I tried finding something nice online that would 
+Okay, now I'm going to make a dataframe that will serve as my bracket. I tried finding something nice online that would serve my purpose, but making it on my own is fine, too.
+
 ```{r bracket_creation}
 bracket <- data.frame(stringsAsFactors = FALSE)
 team <- c("Gonzaga", "Appalachian St.", "Oklahoma",
@@ -79,6 +80,7 @@ adv <- adv[, -c(9, 12, 15, 18, 21)]
 ```
 
 Okay, one last thing before we smoosh the dataframes together. We need to make sure the teams match. I've been trying to do this the fancy with agrep, but I've been struggling. Since I'm in a time crunch, I'm just going to do this by brute force. 
+
 ```{r name_match}
 for(i in 1:nrow(basic)){
     basic[i,1] <- str_replace(basic[i,1], "NCAA", "")
@@ -103,7 +105,7 @@ NCAA_data <- left_join(bracket, power_rankings, by = "team",  suffix = c(".x", "
 NCAA_data <- left_join(NCAA_data, rpi, by = "team",  suffix = c(".x", ".y"))
 ```
 
-Okay, now we have our monster dataframe. Before we start doing stuff with it, let's make a quick edit to our bracket dataframe. I want it to represent the different rounds of the tournament, so...
+Now we have our monster dataframe. Before we start doing stuff with it, let's make a quick edit to our bracket dataframe. I want it to represent the different rounds of the tournament, so...
 
 ```{r bracket_rev}
 brack_names <- c("Round_2", "Round_3",
@@ -149,7 +151,7 @@ compare_teams <- function(dataframe_data, dataframe_bracket, round, team1, team2
 }
 ```
 
-Cool, I have my function. Now, let's put it to use.
+Here's the alternative to the function:
 
 ```{r round_2}
 count <- 1
@@ -428,7 +430,18 @@ while(count < 3){
    else{
      bracket <- bracket %>%  
       add_row(Round_7 = team2)
-      }
+      ""}
   count <- count + 2
 }
 ```
+
+I don't want to go into R everytime I want to look at my bracket, so I'm going to save it.
+
+```{r csv}
+#write.csv(bracket, #"C:\\Users\\Owner\\Documents\\Portfolio_6\\Portfolio_6\\data\\bra#cket.csv")
+```
+
+
+Okay, so that was my workshop on how not to do stats. The majorly taboo thing I did was doing analyses until I got results I liked. If I had more time to do this, I would have done more pre-analysis thinking.
+
+So, the result: I used 1a and found that Gonzaga will win the tournament. I decided not to use 1c for anything. Instead, for my other pool, I did what I usually do and chose based on personal vendettas. Now, I want to see if my program performs better than the ultra biased personal selections. I'm guessing it will, but I'm going to test it. Stay tuned for a follow-up t-test comparing the scores from the program and me. 
